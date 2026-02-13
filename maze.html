@@ -1,0 +1,433 @@
+<!doctype html>
+<html>
+  <head>
+    <link id="style" rel="stylesheet" href="light.css" />
+    <link rel="preload" href="img/moon.png" as="image" />
+    <link rel="preload" href="img/sun.png" as="image" />
+    <link rel="preload" href="img/stars.jpg" as="image" />
+    <link rel="preload" href="img/sky.jpg" as="image" />
+    <script>
+      var isNight = localStorage.getItem("cssState");
+
+      if (isNight === null) {
+        localStorage.setItem("cssState", "n");
+        isNight = "n";
+      }
+
+      if (isNight === "n") {
+        document.write(
+          "<style>.spacer { background-image: url(img/sky.jpg); }</style>",
+        );
+      } else {
+        document.write(
+          "<style>.spacer { background-image: url(img/stars.jpg); }</style>",
+        );
+      }
+    </script>
+    <title>Hello World!</title>
+  </head>
+  <body>
+    <div class="hFlex">
+      <div class="spacer"></div>
+      <div class="vFlex">
+        <div class="titleBar">
+          <a class="titleLink titleLinkFirst" href="index.html">Home</a>
+          <a class="titleLink" href="encoder.html">PNG Encoder</a>
+          <a class="titleLink" href="maze.html">Maze Pathfinder</a>
+          <a class="titleLink titleLinkLast" href="lms.html">Python LMS</a>
+          <div class="button">
+            <img src="img/moon.png" width="40" height="40" />
+          </div>
+        </div>
+        <div class="content">
+          <h1>Maze Generator and Pathfinder</h1>
+          <div class="gitLinkContainer">
+            <a
+              class="gitLink"
+              href="https://github.com/Ultragum/Maze-Pathfinder"
+              >Repository</a
+            >
+          </div>
+          <h2>Purpose</h2>
+          <p>
+            I wanted to practice object-oriented programming, along with further
+            increasing my C++ skills, so I decided to create a program that
+            implements the A* pathfinding algorithm. I originally chose to split
+            the program into two files. The first file would handle the maze
+            generation and pathfinding, meanwhile the second file would handle
+            the command-line interface (CLI) operations. These two files were
+            finished especially fast, so I decided to expand the project to
+            include a graphical user interface (GUI). To further challenge
+            myself, I gave myself the requirement of making it cross-platform. I
+            looked at various libraries that could accomplish this, and settled
+            on wxWidgets. Since it is still actively updated, and I often use
+            programs that utilize wxWidgets (Audacity and GIMP), I decided to go
+            with it.
+          </p>
+          <h2>Creation</h2>
+          <h3>Approach</h3>
+          <p>
+            When starting this project, I first worked on the maze object's
+            header file. Before writing any functions, I first used the header
+            as an outline of what I imagined would be needed. I went with the
+            singleton design pattern (I wanted to practice it, even if it wasn't
+            needed) and put thought into which functions should be private and
+            which should be public. Once the header was done, I started work on
+            the maze's cpp file. Every time a few functions were completed, I
+            would write code within the main function to test them. No testing
+            frameworks were utilized for this project since I only wanted to
+            focus on building the program itself. It also gave me a good exuse
+            to mess around with Visual Studio's debugger. For the CLI, I decided
+            to keep it simple and just request a size for the maze. It would
+            generate a maze with obstacles and instantly solve it. With the
+            project becoming finished unexpectedly fast, I went and added color
+            to the terminal output, such as making obstacles red. After
+            finishing that improvement, I made the decision to implement a GUI.
+          </p>
+
+          <p>
+            Since I already had GUI experience with Java applications, I had a
+            rough idea about the classes I would have to create. The first two
+            classes created were a custom frame class and panel class. Then I
+            learned that wxWidgets requires a class that inherits from wxApp, so
+            I created a class named app. These three ended up being the only
+            custom classes needed for my GUI. Once setup was done for the app
+            class and a window was appearing, I started work on the frame. This
+            frame would be what holds the rendered maze and its controls. Once
+            the various buttons and layouts were created, I started work on the
+            panel. This custom panel class would be what renders the maze. Once
+            this was finished and I could interact with the maze, I started work
+            on polishing up the app.
+          </p>
+          <details>
+            <summary>Implementation</summary>
+            <div class="detailsContent">
+              <h3>Classes</h3>
+              <p>
+                This program consists of 4 classes written by me, along with the
+                wxWidgets library. The maze itself is contained within a class
+                called Maze. This stores the maze, the pathfinding algorithm,
+                and various functions to interface with the maze. The other
+                three classes, App, MazeFrame, and MazePanel, deal with GUI and
+                all inherit from wxWidgets classes. App acts as the entry point
+                to the program, MazeFrame deals with styling and layout, and
+                MazePanel interfaces and renders the maze.
+              </p>
+              <h3>App</h3>
+              <p>
+                The main function of this program resides within the wxWidgets
+                library. To get it to run my code, the library provides a macro
+                that sets a class inheriting from wxApp as the entry point for
+                my code. I created a class named App, which inherits from wxApp,
+                and create a function called OnInit(). This function is what the
+                wxLibrary calls when creating the window. Within the function, I
+                initialize a MazeFrame instance and call the Show() function.
+                Immediately after I call a function to rerender the panel. This
+                is done to get the maze to render properly before when the user
+                can interract with the application. Without this, the maze
+                paints at a smaller resolution than the window provides. Once
+                the rendering is done, the OnInit() function returns true,
+                confirming to wxWidgets that the program initialized
+                successfully.
+              </p>
+              <h3>MazeFrame</h3>
+              <p>
+                Within the MazeFrame class are all the functions and variables
+                related to styling, layout, and event handling. The class itself
+                inherits from the wxFrame class and intializes it with default
+                arguments. The constructor for MazeFrame intitializes numerous
+                wxWidgets variables, including a custom class called MazePanel.
+                The MazePanel is located on the top half of the screen, with
+                various buttons located on the bottom half. This layout is
+                dynamic due to a class called wxBoxSizer. Like Flexboxes in CSS,
+                wxBoxSizers allow elements within the frame to stretch according
+                to available space. I used these to set ratios between element
+                sizes that I found appealing. Once the layout was set and the
+                event functions were binded to their respective buttons, the
+                constructor is done initializing MazeFrame.
+              </p>
+              <p>
+                While the buttons that the user uses to interact with the maze
+                resides within this class, the functions binded to the buttons
+                call upon other functions. This was done to keep maze
+                manipulations located in MazePanel as best as I can. The binded
+                functions call upon timeFunction(), which is a function I made
+                that calls another function and times how long it takes to
+                complete. It takes in a function type that returns void,
+                allowing me to use this for timing multiple different functions.
+                Once done, timeFunction() writes to the MazeFrame's status bar
+                the time taken. After timeFunction() finishes, depending on the
+                button clicked, the binded function may call upon Layout(), a
+                function that wxBoxSizers have that causes them to reorder their
+                children.
+              </p>
+              <h3>MazePanel</h3>
+              <p>
+                MazePanel consists of functions and variables responsible for
+                handling and rendering the Maze. There are constants that
+                represent bounds and default values, fundamental variables that
+                keep track of the maze's state, and class variables that help
+                with rendering. This class also contains a pointer to the Maze
+                class. The functions for manipulating the maze act as a
+                middle-man in between the GUI and the Maze class. They use the
+                variables inside MazePanel that track the maze's state and calls
+                the corresponding function in Maze if the action wouldn't send
+                the variables out-of-bounds. The final few functions are for
+                rendering. I should also note that a custom destructor is
+                declared to help cleanup the Maze class.
+              </p>
+              <p>
+                The constructor first binds the paint event to my onPaint()
+                function. This lets my code take over the default behavior and
+                render the panel how I need it to be. Then the left-click event
+                is binded to my onClick() function. I made this the only
+                interface event to not be passed through MazeFrame since it
+                didn't require any buttons. With the MazePanel being the
+                buttons, it made sense to have it binded. After the bindings,
+                the constructor calls setupMaze(), which initializes both the
+                Maze class and a 2d matrix that stores the color that represents
+                each cell. Once the function is done, the constructor emplaces
+                various brushes into a vector of brushes. These are used to
+                easily access colors when rendering. Finally, I call upon
+                updateBitmap() to intitialize the bitmap used for rendering.
+              </p>
+              <p>
+                Rendering starts in onPaint() and calls upon updateBitmap(). The
+                bitmap function first gets the size of the panel and checks if
+                the size would cause any blank spaces. If so, it sets the
+                panel's size to one that would not cause blank spaces and then
+                calculates the size for each cell. Then an empty bitmap is
+                created and put into a graphics context. If the graphics context
+                is created successfully, then the bitmap is updated with how the
+                maze should be rendered. Each cell's starting position is
+                determined, then the cells matrix from before is used, along
+                with the brush vector, to set the required painting brush. The
+                cell is then painted. Once this is done for every cell, the
+                graphics context is deleted and the function is complete. Back
+                in onPaint(), a painting context is created and the bitmap is
+                drawn onto it.
+              </p>
+              <h3>Maze</h3>
+              <h4>Variables and Interface Functions</h4>
+              <p>
+                This final class houses the matrix which represents the maze,
+                along with every function required to manipulate it and to
+                pathfind. There's also a private struct within called Node.
+                Within it are 7 integer values named x, y, dist, heur, val, key,
+                and prev. These variables are used to help the pathfinding
+                algorithm. Back inside the Maze class are a static const int
+                variable for obstacle generation, a default_random_engine
+                variable (named gen) for generating random numbers, and a
+                uniform_int_distribution&ltint&gt (named dist) that maps those
+                random numbers to values within 0 and 99 inclusive. Two int
+                variables, height and width, are included so I don't have to
+                call the respective size() functions of the matrix. There are
+                also 2 short arrays of length 3 that stores information
+                regarding the start and goal cells. The first two values
+                correspond to the Y and X values, with the final value being
+                what used to be in the cell that start and goal occupy. For the
+                maze matrix (called mat), it's a vector of unsigned char
+                vectors. I chose unsigned chars as the data type so I could save
+                on memory usage. There are 5 values which can be assigned, which
+                are '0' (empty), 'X' (obstacle), '@' (start), '*' (goal), and
+                '!' (path).
+              </p>
+              <p>
+                The final variable to talk about inside Maze is the static Maze
+                pointer. When I originally started this project, one of my goals
+                was to practice object-oriented concepts. I learned about
+                singletons in university, yet I was rusty due to not
+                implementing one in a long time. With those two in mind, I
+                decided to implement the design pattern in this program. Whether
+                or not it actually would help development was not a factor in my
+                decision. Due to this, the constructors and Maze pointer are all
+                set to private. To create this class, the static init() function
+                must be called. If it's the first time calling it, the
+                constructor is called, assigned to the Maze pointer, and the
+                pointer is returned. If it's been called before, the existing
+                pointer is returned. This enforces the singleton rule of only
+                one instance ever existing. A static uninit() function exists to
+                delete the static Maze pointer. I left the default destructor
+                untouched since it cleans up the rest of the class nicely.
+              </p>
+              <p>
+                The constructor first initializes gen, dist, and mat. The height
+                and width are then set. Then the values for the start and goal
+                arrays are set, with start being at the top-right and goal at
+                bottom-left. The final value for each array is set as an empty
+                space. Finally, the constructor calls addObstacles(), which
+                randomly generates obstacles and empty spots on the map at a
+                default rate of 35%. It does this by generating a number with
+                gen and dist, then checking if the number is less than the set
+                rate. If it is, an obstacle is added to the matrix. If not, a
+                free spot is added instead. Once all cells have been assigned,
+                the start and goal spots are assigned if the positions inside
+                their respective arrays fall within the bounds of the matrix.
+                They could fall out-of-bounds if either one were removed
+                previously. With addObstacles finished, the constructor is done
+                initializing the class.
+              </p>
+              <p>
+                Various interface functions exist that get called by MazePanel.
+                setStart() and setGoal() both are the first functions declared
+                to edit the maze. They both save the cell's type where the new
+                start or goal will be, then the cell's type becomes start or
+                goal. After that, the position of the newly placed start or goal
+                is saved. The next set of functions are the remove functions.
+                removeStart() and removeGoal() check if their respective
+                variables have been removed and, if not already removed, removes
+                them from the matrix and sets the positions to -1.
+                removeColumn() and removeRow() both check if removing themselves
+                would set the start or goal out-of-bounds. If so, the respective
+                remove functions for them get called. Finally, the column or row
+                gets removed and the width or height gets decremented by one.
+                removePath() is the final remove function. It utilizes
+                breadth-first search to find cells with a path type and removes
+                them. It does this with a queue of pairs of ints. The pair
+                represents the cell, with the first int representing Y values
+                and second representing X values. It starts by adding the
+                position of start to the queue. The search loop starts by
+                getting the Y and X values from the front of the queue. The
+                front is then popped and a for-loop initiates. It checks the
+                neighboring 8 cells and checks if they're a path cell. If not,
+                the loop continues onto the next iteration. If so, then the
+                neighbor's cell is set to empty and the position is pushed onto
+                the queue. Once the for-loop is done, the search loop starts
+                again until the queue is empty. For the add functions, they
+                consist of addColumn() and addRow(). They create a column or row
+                of empty cells and increments the width or height by one. The
+                final two manipulation functions are flipCell() and getCell().
+                flipCell() takes in a position and flips the cell between empty
+                and obstacle, and getCell() takes in a position and returns the
+                cell type.
+              </p>
+              <h4>Pathfinding</h4>
+              <p>
+                The most complex function within this program is pathfind(),
+                which is an implementation of the A* pathfinding algorithm. The
+                algorithm itself works by assigning a distance cost (to get to
+                the cell) and a heuristic cost (to get to the goal) to each
+                empty cell neighboring the start, then doing the same to the
+                next cell with the lowest total cost. I utilized a minimum
+                priority queue with the custom Node struct defined earlier. When
+                creating the priority queue, I had to define a comparator
+                function to work with my struct. I declared an anonymous
+                function that compares two nodes (left and right) and returns
+                true if the total variable for left is greater than the one for
+                right, and false if not. After that, three const int arrays of
+                size 8 are created. The first array, dirCost, contains values of
+                10 and 14. These represent the costs of moving to neighbors. The
+                next two arrays, xDir and yDir, contain values -1, 0, and 1.
+                These represent the position of the neighboring cell when added
+                the current cell's position. In the main loop, the 8 neighbors
+                are checked with another loop that goes from 0 to 7. Index 0
+                represents the neighbor straight down, with each subsequent
+                index being the next neighbor counter-clockwise. It then creates
+                a vector of Nodes (named nodeMap) with a size of width * height.
+                The vector is used as a hashmap to keep track of cells that have
+                had Nodes created to represent them and update them if a more
+                efficient path to said cell is found. A Node is then created
+                from the starting cell and is placed into the priority queue.
+                Its key ((Y position * width) + X position) is then used as the
+                index for nodeMap, replacing the Node currently there with the
+                starting Node. Next, an empty Node called current is created.
+                Then, the int values stored within a Node are declared (besides
+                total and prev). They are named newY, newX, dist, heur, and key.
+              </p>
+              <p>
+                Once all of that has been done, the main loop for the algorithm
+                begins. It runs as long as the priority queue is not empty. The
+                Node on top of the priority queue is assigned to current. Then
+                the position of current is checked. If it's the same as goal's
+                position, the loop breaks. If not, the queue's top Node is
+                popped. The neighboring nodes are then checked with a for loop.
+                The loop initializes an int variable i, starting at 0 and
+                incrementing it by one each run until i equals 8. Variables newY
+                and newX are assigned by taking current's position and adding
+                them to the values located within yDir and xDir, using i as the
+                index. The values are then checked to see if they fall within
+                the matrix's bounds. If they don't, or the cell is an obstacle,
+                then the loop continues onto the next iteration. With a valid
+                cell, the variables key, dist, and heur are assigned. The
+                variable key uses the same formula as Node's key, just with the
+                new position values. For dist, it takes current's dist value and
+                adds it to the value located at index i of dirCost. Finally,
+                heur is assigned the value returned by calculateH, a private
+                helper function. This takes in newY and newX, returning the cost
+                to get to the goal if no obstacles in the most-direct route.
+                With these values set, the for loop checks if it should be added
+                to the priority queue. The Node at index key of nodeMap is
+                compared to the values just set. If either the Node at the index
+                is empty, or the Node's total is greater than dist + heur, then
+                a new Node representing the neighbor is created. The int values
+                set before are used in the constructor, along with current's
+                key. The key is the value that prev is set to. The new Node then
+                replaces the one in nodeMap and is pushed onto the priority
+                queue. Once all 8 neighbors are checked, the for loop is
+                finished and the main loop goes onto the next iteration if the
+                priority queue is not empty. When the main loop exits,
+                pathfind() returns if it was due to the priority queue being
+                empty. If not, then the path from start to goal is made. The
+                Node representing goal would still be stored within current, so
+                the path is created backwards. Since only the empty Nodes and
+                start Nodes have a prev value of -1, a while loop is done while
+                current's prev is not equal to -1. In the loop, the cell located
+                at current's position has its type set to path. Then, current is
+                set to equal the Node located at index prev of nodeMap. When the
+                loop ends, the cell where goal is located has its type set back
+                to goal.
+              </p>
+            </div>
+          </details>
+          <h3>Problems</h3>
+          <p>
+            The majority of my problems came from the GUI library. The first
+            major issue I had was that I had no idea what the various library
+            classes were. It had been a long time since I last did GUI work on
+            Java. For the common classes that had an equivelent in Java, I had a
+            rough understanding of how they functioned. However, I was lost on
+            the lesser-used, and wxWidget-specific, classes. Documentation
+            barely helped since it showed the functions and explained them
+            briefly, but not enough for me to understand how to use them. I got
+            over this hurdle by looking at the sample programs provided when I
+            downloaded the library. Seeing how various classes were used helped
+            me understand them better.
+          </p>
+
+          <p>
+            Another problem I had was with performance. The panel class was
+            originally used to represent each cell of the maze. Each one stored
+            the current color of the cell, along with the X and Y positions. I
+            did something similar for a Java program, but that one didn't have
+            performance in mind. With no more than 100 cells ever being rendered
+            on my Java program, I never noticed how inefficient this approach
+            was. With my C++ program, this inefficieny would be unacceptable.
+            The program could render a maximum of around 40000 cells, yet a
+            rendering delay would already be noticable with only a few hundred
+            panels. My first improvement was by changing the panel class to
+            represent the entire maze. By treating the panel as a canvas instead
+            of as a cell, rendering became over 100 times faster. Even then,
+            that wasn't enough. When the maze approached the limits I set,
+            another easily noticable delay occured. I was unhappy with this, so
+            I researched ways to further improve rendering speeds. Eventually, I
+            figured out that I could create a bitmap that represents the Maze.
+            By painting this bitmap onto the panel instead of painting the
+            individal cells, the rendering delay became nearly undetectable.
+          </p>
+          <h2>Afterthoughts</h2>
+          <p>
+            This program was really fun to make. I got to learn a lot about
+            optimization and GUI development. The hardest part by far was
+            optimizing the rendering. Creating the layout and styling it was
+            somewhat tricky at first, but using the wxBoxSizer class made it
+            similar to CSS and their flexboxes. Overall, my grasp on
+            object-oriented programming, along with debugging, has improved.
+          </p>
+        </div>
+      </div>
+      <div class="spacer reversed"></div>
+    </div>
+
+    <script src="index.js"></script>
+  </body>
+</html>

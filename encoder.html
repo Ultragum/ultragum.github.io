@@ -1,0 +1,1099 @@
+<!doctype html>
+<html>
+  <head>
+    <link id="style" rel="stylesheet" href="light.css" />
+    <link rel="preload" href="img/moon.png" as="image" />
+    <link rel="preload" href="img/sun.png" as="image" />
+    <link rel="preload" href="img/stars.jpg" as="image" />
+    <link rel="preload" href="img/sky.jpg" as="image" />
+    <script>
+      var isNight = localStorage.getItem("cssState");
+
+      if (isNight === null) {
+        localStorage.setItem("cssState", "n");
+        isNight = "n";
+      }
+
+      if (isNight === "n") {
+        document.write(
+          "<style>.spacer { background-image: url(img/sky.jpg); }</style>",
+        );
+      } else {
+        document.write(
+          "<style>.spacer { background-image: url(img/stars.jpg); }</style>",
+        );
+      }
+    </script>
+    <title>Hello World!</title>
+  </head>
+  <body>
+    <div class="hFlex">
+      <div class="spacer"></div>
+      <div class="vFlex">
+        <div class="titleBar">
+          <a class="titleLink titleLinkFirst" href="index.html">Home</a>
+          <a class="titleLink" href="encoder.html">PNG Encoder</a>
+          <a class="titleLink" href="maze.html">Maze Pathfinder</a>
+          <a class="titleLink titleLinkLast" href="lms.html">Python LMS</a>
+          <div class="button">
+            <img src="img/moon.png" width="40" height="40" />
+          </div>
+        </div>
+        <div class="content">
+          <h1>PNG Encoder</h1>
+          <div class="gitLinkContainer">
+            <a class="gitLink" href="https://github.com/Ultragum/PNG-Encoder"
+              >Repository</a
+            >
+          </div>
+          <h2>Purpose</h2>
+          <p>
+            During CSCE 544: Functional Programming, I was wondering how I could
+            apply the knowledge that I was learning. It was my second class for
+            learning Haskell, yet I still couldn't see how it could make a
+            practical application. Around when our teacher was starting to get
+            into advanced theory (state monads, continuation passing style,
+            etc), I decided to start a practical project. I wanted to create a
+            program that loosely follows the principle of Haskell's pure
+            functions, taking in an input and generating an output without
+            affecting external states. At the same time, I was also interested
+            in learning how various image algorithms work. These two desires
+            combined to create this program.
+          </p>
+          <h2>Creation</h2>
+          <h3>Approach</h3>
+          <p>
+            To begin with, I had to decide which file type I would create an
+            encoder for. I already had a basic overview of how PNG and JPEG
+            compression works, so I wanted to choose one of them. After some
+            consideration over the complexity of the project, I decided to go
+            with PNG. With how much more complicated the JPEG compression
+            algorithm is, I decided it would be best to attempt it after I've
+            gained more experience with Haskell. Then the next step was to
+            figure out how I would supply picture data to my encoder. Since
+            creating a custom decoder for my project would drastically increase
+            the time required to produce a working application, an external
+            library was utilized for supplying picture data to my encoder. The
+            file type for inputs was then chosen to be JPEGs.
+          </p>
+          <p>
+            Before I could start programming, I had to learn how PNG compresses
+            pictures and stores the data within files. My knowledge before
+            starting came from a few YouTube videos about PNG, along with a
+            reading of PNG's Wikipedia article. This gave me a good overview of
+            the process, but that would not be enough to create actual code. In
+            order to learn how to create an implementation, I looked up the
+            offical PNG specification and studied it. I started work on
+            programming once I had an understanding of how the PNG chunks are
+            organized, along with how the first step of compression (scanline
+            filtering) works. As I made progress on the code, I also went into
+            the RFCs (1950 and 1951) for zlib and DEFLATE. These two
+            specifications describe the rest of the compression algorithm. The
+            zlib RFC was easy enough to understand, but the DEFLATE RFC required
+            a lot of effort. Sometimes I would have to reread the RFC before I
+            could figure out what had to happen next within the compression
+            process. Othertimes I had to give up for the night, working again
+            the next day with a fresh mind. There were some times where neither
+            helped with whatever problem I was facing. These ones required an
+            external source to solve. I avoided using LLM AIs as I didn't want
+            to risk needing a major rewrite over an AI hallucination. Instead,
+            my main source of external information was StackOverflow and other
+            programs. The "Problems" section of this page goes into more detail
+            regarding these external sources.
+          </p>
+          <p>
+            To begin with coding, I first set up a Cabal project. I used the
+            command "cabal init" to create the template files for the Cabal
+            project. Next I created Main.hs and wrote a simple program that
+            prints "Hello World!" to the console. I then created PNGEncoder.hs
+            and started work on the encoding module. My first goal for this was
+            to get file creation working. As I hadn't implemented the external
+            decoder yet, I hardcoded the data of a small 3x3 PNG file into my
+            program. This data was obtained by using a hex editor to copy the
+            bytes of a picture that I made. Once I got the file creator working,
+            I began replacing the hardcoded data with functions to generate the
+            various parts of PNG. The PNG chunks were first, then scanline
+            filtering, then finally the DEFLATE algorithm. These were sectioned
+            off into different areas of the Haskell file. The CRC-32, Alder-32,
+            and scanline filtering sections were at the top of the file. In the
+            middle would be every function required for the DEFLATE algorithm.
+            After the DEFLATE section would be the various PNG chunk creation
+            functions.
+          </p>
+          <p>
+            At the end would be multiple sections dedicated to the various tests
+            created throughout development to help me debug functions and catch
+            hidden bugs. The first of these sections was for storing test
+            variables, such as picture generators and the hardcoded data
+            mentioned before. Next is a section for debugging major functions,
+            such as the one that generates Huffman trees. These all take in a
+            Word8 matrix generated by the generarors as input. Some of these
+            functions also generate multiple intermediate objects, so the test
+            functions for those also include a second variable of the type Int.
+            This allows me to select which intermediate object I want to
+            analyze, each of which would be returned as a String. I avoided
+            creating tests for simpler functions since the Haskell complier has
+            an interactive mode that lets you directly call functions. This
+            interactive mode is how I would call tests and debug since it was
+            extremely convenient. Past that subsection were generators and
+            helpers for QuickCheck. QuickCheck is an external library that adds
+            the ability to quickly test properties of various functions.
+            Everything within this subsection was designed to help the functions
+            that test properties. Finally, the final subsection contains those
+            functions. I wasn't sure on what properties I could check for the
+            PNG chunks, so I only created property tests for the compression
+            part of PNG. I'd put the encoder through a step of the compression
+            process, then I would uncompress it and compare it to the original
+            data, testing PNG's lossless property. Within the interactive mode,
+            I could call QuickCheck and have it generate 100 test cases. If one
+            of them fails due to the property test returning false, a failing
+            test case will be printed to the console. QuickCheck is neat as it
+            doesn't always have to return the test case that originally failed.
+            With a custom implementation of the shrink function, QuickCheck can
+            attempt to generate an even smaller picture that still fails the
+            property. With less visual noise from the data, debugging becomes a
+            little bit easier thanks to it.
+          </p>
+          <details>
+            <summary>Implementation</summary>
+            <div class="detailsContent">
+              <h3>Modules</h3>
+              <p>
+                While the other 3 portfolio projects consisted of multiple
+                files, this one only uses 2 (called modules in Haskell). The
+                first module is Main, which acts as a simple CLI for the
+                application. The second module is PNGEncoder, which is by far
+                the most complicated file within these three projects. This
+                module stores every algorithm that is required to produce a
+                valid PNG file. Within it are various sections grouping similar
+                functions, such as all the Huffman-related functions.
+              </p>
+              <h3>Main</h3>
+              <p>
+                Main is a short module, consisting of a little over 50 lines of
+                code, so there are no named sections within. With those 50
+                lines, 5 functions are defined. The first three listed are used
+                to convert the data decoded by Codec.Picture, an external module
+                taken from the JuicyPixels library, into a form that PNGEncoder
+                can use. The function rgb8ToPicture takes in an "Image
+                PixelRGB8", generated by Codec.Picture, and returns a tuple
+                consisting of a list of lists of Word8s (2D matrix), along with
+                2 Int values representing the width and height of the image. The
+                Int values are extracted from the image, meanwhile the 2D matrix
+                is created by toPicture. It is given a list of Word8, created by
+                converting the "Image PixelRGB8", along with the width value of
+                the picture, and returns a 2D matrix. It does this by using the
+                function pictureLine, taking in the same inputs and returning a
+                list of Word8, to find where the current line should end and
+                then recursively calling upon itself to generate the next line
+                of this 2D matrix.
+              </p>
+              <p>
+                The next two functions, prepareWrite and main, make up the
+                interface of the program. The main function is of the type "IO
+                ()", which represents the environment that the program is ran
+                in. Since Haskell is a pure language, anything that could
+                produce side effects (such as writing a file) has to be handled
+                in a special way. This function first grabs any arguments given
+                to the executable and stores it in a list of Strings. Next it
+                checks the list and returns a message explaining program usage
+                if no arguments were supplied. If there's at least one argument,
+                then Codec.Picture's readJPEG file is called. It is given the
+                head of the argument list, which represents a JPEG's name, and
+                attempts to read it. It returns a Maybe monad, representing
+                either an error message or a decoded picture. If it fails, the
+                return value is a string representing an error message and it is
+                printed, ending the program right after. If it succeeded and a
+                DynamicImage, the decoded picture, is returned, then it is
+                passed to prepareWrite. That function takes in the DynamicImage,
+                along with the argument list, and returns the IO monad. It first
+                converts the image into a structure usable by my encoder, then
+                it confirms that the file read earlier ago was loaded. Then it
+                calls the writePNG function within PNGEncoder. If a single
+                argument was passed, then the name of the JPEG will be the name
+                of the new PNG file. If two or more arguments are provided, then
+                the second argument will be the name of the new file, with any
+                arguments past that ignored. In either case, the 2D Word8 matrix
+                and its dimensions are passed as well.
+              </p>
+              <h3>PNGEncoder</h3>
+              <h4>Error Detecting</h4>
+              <p>
+                The first section, dedicated towards error detecting, consists
+                of 5 functions and a variable. The first 3, along with the
+                variable, are for handing CRC calculations. It starts with
+                crcCalculate, which takes in a list of Word8 and calculates the
+                final step of the CRC algorithm. It'll map the function (xor
+                255) over the Word8 list of length 4 returned by crcRunner. The
+                crcRunner function takes in the list of Word8 representing the
+                data which CRC is applied to, along with a starting CRC value of
+                4294967295. This starting value has the data type Int and is the
+                decimal representation of an unsigned 32-bit integer that has
+                every bit set to 1. Within crcRunner, the bitwise XOR of CRC and
+                the current byte being analyzed from the data stream is taken.
+                Afterwards, the bitwise AND of the resulting value and 255 is
+                taken. This is then used as an index for the crcTable, which is
+                a precomputed table that helps speedup the CRC calculation. Once
+                the value is extracted from the table, the bitwise XOR of it and
+                the original CRC shifted right 8 bits is calculated. This final
+                value is the new CRC, which is then recursively passed back to
+                crcRunner. This continues until the Word8 array becomes empty.
+                Once empty, the CRC is converted to a list of 4 Word8s with
+                sizeToWord8. The resulting list is the decimal representation of
+                what the 32-bit CRC would be stored as within 4 bytes.
+              </p>
+              <p>
+                The last two functions are for calculating the Alder-32 checksum
+                of the filtered scanlines. The starting function is alder32,
+                taking in a list of Word8 and returning another Word8 list with
+                a length of 4. It creates the checksum by first running
+                alderLoop, which takes in a starting tuple value of (1, 0), both
+                Ints, and the Word8 list. This new function updates the left
+                right right tuple value for each Word8 within the list. Left
+                gets the value of the current Word8 added to it, then the modulo
+                65521 of it is taken. This new left value is also used to
+                generate the new right value, with it getting added instead of
+                the Word8. Once the entire list is consumed, the alder32
+                function takes the resulting tuple and adds them together, with
+                the right value being bitwise shifted left by 16 bits. This
+                resulting value is then given to sizeToWord8 to generate the
+                Word8 list that alder32 returns.
+              </p>
+              <h4>Filters</h4>
+              <p>
+                The filters section consists of a bunch of functions that
+                calculate the "weight" of using a filter, along with another set
+                for applying those filters to the scanlines. The five filters
+                are none, sub, up, average, and paeth. None keeps the raw data,
+                sub is the difference between the current color value and the
+                previous (with the pixel to the left of the first one being
+                treated as (0, 0, 0)), up is like sub for the above pixels,
+                average takes the average of the above and previous pixels and
+                calculates the difference, and paeth uses a special algorithm.
+                The paeth filter takes the difference of the current value and
+                either the previous, above, or previous above pixel based on a
+                "paeth predictor". This predictor is created based on the
+                difference of the previous values and a new value that is
+                calculated from adding the previous and above pixel, then
+                subtracting the previous above pixel. After taking the absolute
+                value of the difference, the differences are then compared. The
+                smallest difference decides which previous pixel is used in the
+                actual paeth filter.
+              </p>
+              <p>
+                As for calculating the weight of the filter, this is done by
+                adding together what the new values would be after filtering.
+                The filtered values are calculated, then the absolute value is
+                added to the weight. The program originally calculated the
+                weight and created a new list with the applied filter, but this
+                created a bunch of allocations, slowing down the program more
+                than it saved in CPU time. After the weights are calculated for
+                the current scanline, the main filtering function,
+                newFilterPicture, compares the weights and calls the respective
+                getFilterLine function of the smallest weight. These functions,
+                consisting of getNoneLine, getSubLine, etc, create a list with
+                the applied filter. It does this until the current scanline is
+                empty.
+              </p>
+              <p>
+                However, the Word8 list isn't returned yet. Instead, the list is
+                prepended to the list returned by newFilterPicture. The
+                getFilterLine function creates a list, hands over the
+                responsibility of the rest of the list to newFilterPicture, then
+                newFilterPicture does the same and passes over responsibility to
+                another getFilterLine function. It may seem like this approach
+                will retain a bunch of values in memory until the final function
+                in this chain returns, but it's actually extremely efficient in
+                Haskell. Every time responsibility for the final list swaps, the
+                memory used within the specific function gets deallocated if
+                it's not necessary anymore. Plus, If I were to return only the
+                completed scanline, then I would have to concatenate it with the
+                rest of the other scanline results. Concatenation has to
+                traverse the entire list before it can combine the lists,
+                resulting in many more additional CPU cycles. This hurts both
+                performance and memory. The current approach, which utilizes
+                prepending, generates a list element and then attaches the
+                element's next pointer to the next generated element.
+              </p>
+              <h4>Types</h4>
+              <p>
+                This section contains the various types that are used by the
+                DEFLATE algorithm.<br />
+              </p>
+              <p>
+                <b>HashedMatch:</b> An IntMap that maps to a list of Ints. This
+                is used to keep track of the hash value of a 3-byte match within
+                the LZ77 algorithm. The Ints stored within the list are the
+                indices where the matches start, with the most recent one being
+                the head element.
+              </p>
+              <p>
+                <b>OccuranceMap:</b> A mutable vector that that contains
+                IntSets. This vector uses the bytes of the stream given to LZ77
+                as indices for the vector. The elements of the IntSets are the
+                indices where the aforementioned bytes occur within the data
+                stream.
+              </p>
+              <p>
+                <b>CompressedData:</b> An unboxed, mutable vector that stores
+                Ints. Due to the usage of state monads within LZ77, the data
+                can't just be adjusted and returned like with filtering. This
+                vector is used as an accumulator, storing the compressed stream
+                until it's able to be converted into a list for later functions.
+              </p>
+              <p>
+                <b>FrequencyMap:</b> An IntMap that maps to other Ints. This is
+                used to keep track of how often a value is used within a data
+                stream.
+              </p>
+              <p>
+                <b>NewFrequencyMap:</b> An unboxed, mutable vector that contains
+                Int values. This specialized data structure was created to
+                alleviate the massive amount of memory allocations that the
+                dataFrequency function was doing. It utilizes a state monad to
+                allow edits to values within the vector without creating new
+                objects, like how the original FrequencyMap did.
+              </p>
+              <p>
+                <b>CodeMap:</b> An IntMap that maps to a tuple of 2 Ints. The
+                left Int represents a code, meanwhile the right Int is the
+                code's bit length.
+              </p>
+              <p>
+                <b>HuffTree:</b> A data structure that has three possible
+                states. It can either be Empty, which holds nothing. The second
+                state, Leaf, holds an Int value. The last state is Node, which
+                holds two other HuffTrees.
+              </p>
+              <p>
+                <b>SubTree:</b> A structure that allows the next one, a priority
+                queue, to function. It consists of an Int and a HuffTree. The
+                Int acts as the HuffTree's weight, which is the sum of the
+                Leaf's Int values within the tree.
+              </p>
+              <p>
+                <b>PriorityQueue:</b> A heap that orders SubTrees. It is used as
+                a min-heap.
+              </p>
+              <h4>LZ77</h4>
+              <p>
+                The first three declarations within LZ77 are windowSize,
+                windowMulti, and bufferIntSet. The variable windowSize is the
+                set sliding window size (32768), while windowMulti and
+                bufferIntSet are used for resetting the OccuranceMap. Whenever
+                OccuranceMap has more indices added to its IntSets than
+                bufferIntSet, the vector is reset into having every IntSet be
+                empty. Adding values to the IntSet isn't constant since the
+                structure is based on radix trees. Whenever a value is added to
+                the tree, other nodes within the tree get adjusted. Haskell ends
+                up reallocating these adjusted nodes, causing massive amounts of
+                allocations for large trees. By resetting the vector
+                occasionally, this issue can be somewhat alleviated at the cost
+                of overall compression. The variable windowMulti can be changed
+                to adjust the frequency of resets.
+              </p>
+              <p>
+                After those variables are three functions dedicated to hashing.
+                The first two functions, hashRunner and hash, are for generating
+                a key for HashedMatch. It starts with hash, which takes in a
+                list of Ints and returns a Maybe Int. This is an interface
+                function that calls hashRunner, which actually calculates the
+                hash key. It takes in a list of Ints, an Int that counts down to
+                0, and a Maybe Int that acts as an accumulator. As the Ints
+                within the list can't be above 255, the function reads three
+                Ints and treats it as a 24-bit number. If there aren't three or
+                more Ints to read, it returns Nothing. The next function,
+                hashLocation, takes in a Maybe Int as the key, an Int
+                representing an index to insert into a list, and the HashedMatch
+                that'll be read. If the key is Nothing, then the HashedMatched
+                is not updated and is returned. If it's a Just value, then that
+                value is used as a key for a lookup. If the lookup returns
+                Nothing, then the HashedMatch is returned after a list
+                containing just the index input is inserted. If a list of Ints
+                returns from the lookup, then the index is prepended to it
+                before the HashedMatch is returned.
+              </p>
+              <p>
+                After the three HashedMatch functions are three functions for
+                using the OccuranceMap. The first of these, logLocation, takes
+                in an Int as a key, an Int as an index to be inserted into the
+                OccuranceMap's IntSets, and the OccuranceMap itself. It acts
+                like hashLocation, just it adds the index to an IntSet instead
+                of a list. Next is quickSearch, which takes in multiple
+                variables so that it can traverse the data stream. It checks the
+                current byte of the stream with the current match it's checking,
+                incrementing a length value by 1 each time it traverses
+                forwards. Whenever the data stream ends, a maximum length of 258
+                is hit, or a match fails, the function returns the length of the
+                match and its distance. The third OccuranceMap function is
+                quickLog, which takes in a length value generated by quickSearch
+                and logs the values that get traversed from the match with
+                logLocation.
+              </p>
+              <p>
+                Next is the function responsible for selecting a match to use,
+                compareStarts. It is given a list of possible starts for matches
+                and returns a tuple of three Ints, representing a length,
+                distance, and new index to continue at. The compareStarts
+                function goes through each potential start feeds them to
+                quickSearch, remembering the longest match found so far. It'll
+                continue checking starts until either the distance is too great,
+                the start list is exhausted, or a match that is good enough is
+                found. A match is considered good enough if it has a length of
+                32 or greater.
+              </p>
+              <p>
+                The final 5 functions are for guiding the LZ77 process. After
+                compareStarts is indexSearch, which returns the same tuple as
+                compareStarts. Based on a lookup to the HashedMatch, indexSearch
+                will return either a literal value or what compareStarts
+                returns. After this is lzRunner, which is responsible for
+                creating the output of LZ77. It'll first check if more values
+                than bufferIntSet have been traversed. If so, then a new, empty
+                OccuranceMap is generated and the old one is garbage collected.
+                After this check, the hashing functions are called to generate a
+                key and a new HashedMatch. The key is then given to indexSearch,
+                along with the old HashedMatch. If a literal is returned, then
+                the literal is saved to a CompressedData that stores the output.
+                If indexSearch returned a match, then a value representing the
+                length, then another representing the distance, is written to
+                the output vector. The function would then go to whatever the
+                next byte to analyze is, replacing the old HashedMatch with a
+                new one. After the entire data stream has been analyzed, a value
+                of 256 is written to the CompressedData. It is then sliced and
+                frozen. For compatability with the later functions of my
+                program, the result is then converted into a list. After
+                lzRunner are lz77', falseCompress, and lz77. The one right after
+                lzRunner, lz77', creates a state monad, generates the
+                CompressedData and first OccuranceMap used by lzRunner, then
+                finally calls lzRunner. The next two functions are for allowing
+                LZ77 to be optional. The interface function, lz77, calls lz77'
+                if LZ77 compression is enabled. If disabled, then it calls
+                falseCompress to return the input stream with an appended 256
+                Int.
+              </p>
+              <h4>Huffman Encoding</h4>
+              <p>
+                Huffman encoding first starts by tracking the frequency of
+                symbols within the data stream. As there is some overlap between
+                the values produced by LZ77 and the symbols that this Huffman
+                implementation tracks (for example, lengths 15 and 16 are
+                represented by the symbol 267), the data stream needs the values
+                to be mapped to their symbols. To do this, first
+                dataFrequencyAdaptor is called. This acts as a converter between
+                the return values of dataFrequency, which handles the mapping
+                and frequency counting, and the values that functions later on
+                in the Huffman process require. When profiling, I noticed that
+                my original implementation of dataFrequency had a massive amount
+                of allocations. After some studying, I learned that when I
+                insert a value into an FrequencyMap, the returned FrequencyMap
+                is a brand new object. This was not going to cut it for my
+                program, so I needed a new data structure. As the alphabet will
+                always have the same maximum amount of symbols, I went with
+                using an unboxed, mutable vector. By using a state monad with
+                this vector, the program is able to update the frequency count
+                without additional allocations. The unboxed part of the vector
+                makes it so that the values stored take up less memory. Boxed
+                values allow lazy evaluation, but my program doesn't need it. To
+                convert back to my original implementation of FrequencyMaps,
+                dataFrequencyAdaptor turns the vector into a list, then that
+                list is used by toFrequencyMap to create the maps.
+              </p>
+              <p>
+                The frequency mapping function, dataFrequency, first checks the
+                first Int of the data stream. If it is less than 256, then it is
+                a literal value. The value has its frequency count incremented
+                by 1 and is added to the mapped data stream. If the value was
+                256, then the data stream is ended. An error message is printed
+                to the console if there are more values within the data stream
+                past 256. Finally, a value of above 256 means that the current
+                value represents a length value, and the next is a distance
+                value. These two values are passed to mapFrequency, along with
+                their respective mapping function and frequency vector. They
+                both return the symbol that the value maps to, along with
+                information regarding the symbol's extra value and extra bit
+                size. This extra information is used to differentiate the
+                multiple values that map to the symbol. Finally, the mapped
+                values and their extra bits are added to the mapped data stream.
+                Within the frequency mapping functions, the values are first
+                mapped to a new symbol if they aren't literals. Next, the mapped
+                value is used as the index for their respective vectors. The
+                frequencies within are then incremented by 1 and the mapped
+                values are returned.
+              </p>
+              <p>
+                Next, the Huffman trees are constructed. The length/literal tree
+                is created first with createHuffTree. This function takes in the
+                FrequencyMap and passes it to createPriorityQueue. The symbols
+                act as a leaf node of a Huffman tree, with its frequency being
+                the key. The resulting PriorityQueue is then given to
+                convergePriority, which returns a Huffman tree. It takes the two
+                smallest Huffman trees and combines both their nodes and
+                frequencies. The combined tree is then inserted into the heap
+                and the process repeats until a single tree remains. This final
+                tree is then returned and then createHuffTree is used to make
+                the distance Huffman tree. Both trees then have their leave's
+                bit lengths recorded by countBitLength. This function traverses
+                the tree, the depth of the node representing the bit length.
+                This info is then stored as a list of tuples of two Ints, left
+                being the symbol and right being the length. Finally, the bit
+                lengths, Huffman tree, and FrequencyMap are passed to
+                validateBitLength for both trees.
+              </p>
+              <p>
+                As DEFLATE encoding has a limit on the size of Huffman trees (15
+                for literal/length and distance trees, 7 for code length trees),
+                the generate Huffman trees have to be validated. The bit lengths
+                are compared with the maximum size. If none go past the maximum
+                size, then the current bit lengths are returned. If invalid,
+                then the Huffman flattening process begins. First, a list of
+                tuples consisting of two Ints is created. The first value is the
+                frequency of a symbol, and the second is the corresponding
+                symbol. It's made by first taking the FrequencyMap, converting
+                it to a list, reversing the values within the tuples, then
+                finally using sortFrequency to sort the list in ascending order.
+                It uses quicksort on the list, with the left values
+                (representing the frequency) being compared. The resulting
+                sorted list of frequencies and symbols is used within the final
+                step of flattening the Huffman tree. Instead of keeping track of
+                which symbols correspond to which bit lengths during flattening,
+                the tree's bit length counts are manipulated on and then
+                reassigned to symbols. The least frequent symbols will get the
+                largest bit lengths first. To get a flattened bit length array,
+                the bit length frequencies are first recorded into a
+                FrequencyMap with bitLengthMap. Then, the function
+                bitLengthArray is used to convert the FrequencyMap into a list,
+                with the index representing the length and the value there
+                representing the frequency. Afterwards, checkOverflow is used to
+                create an overflow count, traversing the Huffman tree and
+                incrementing overflow by 1 for each node (doesn't have to be a
+                leaf node) that is past the maximum size. Then
+                checkOverflowCodes is used to count how many codes have a bit
+                length that fall past 15. This is saved in a variable called
+                overflowCounts. These two overflow counts are then used with the
+                list of bit lengths to simulate flattening a Huffman tree within
+                the flattenBitLength function. It first shortens the list of bit
+                lengths, adding overflowCounts to the maximum-sized bit length
+                index and making it the last list element. This shortened list
+                of bit lengths, along with overflow, is then given to
+                adjustBitLengths to simulate flattening a Huffman tree. It'll
+                decrement the maximum-sized bit length by 1, have moveBitLengths
+                change some values, then decrement overflow by two and
+                recursively call itself again until overflow is less than 1. The
+                moveBitLengths function starts at the index right before the
+                maximum size and traverses it until a non-zero value is found.
+                This non-zero value is decremented by 1, and the value that was
+                checked right before this one is incremented by two. Finally,
+                reassignLengths is called and assigns symbols to bit lengths as
+                mentioned before. The list of tuples is then returned, with the
+                symbol being the left tuple value and the bit length being the
+                right tuple value.
+              </p>
+              <p>
+                Whatever validateBitLength returns is then used to create the
+                length/literal and distance alphabets. The bit length list,
+                after sorting based on the symbol's value, is then given to
+                createAlphabet to create another list of tuples. The left and
+                right values are just like the bit length lists, the difference
+                being that every symbol within the alphabet is included. If it
+                wasn't assigned a bit length, then it gets recorded by
+                createAlphabet as having a bit length of 0. Finally, these bit
+                length lists are used with the alphabets to create a CodeMap,
+                allowing the mapped values of the data stream to finally be
+                encoded. The bit length lists are first given to CodeMapper,
+                which calculates what the numeric values of the Huffman codes
+                will be based on the bit lengths. It first creates a list of bit
+                lengths, just like validateBitLengths did, and then uses it to
+                calculate what the smallest codes for each bit length should be.
+                Within each bit length, the Huffman codes increment by 1 the
+                higher up you go in the alphabet. To calculate what the minimum
+                codes should be that allows this to happen without any codes
+                being a prefix of another, the program first starts at a code of
+                0. It'll traverse the list of bit lengths and calculate what the
+                code should be. It first adds the current code to the bit length
+                count of the previous index. Then the result is shifted left by
+                1 and is assigned to the current bit length. Once every code has
+                been assigned, a CodeMap is created with them. It'll map the bit
+                lengths to the smallest codes that were generated for them. The
+                key is the bit length, the left tuple value is the code, and the
+                right tuple value is also the bit length. The right value is
+                stored for later. Finally, the code map is used with their
+                respective alphabet within the formatHuffman function. This
+                function creates a list of tuples, where the left value is the
+                symbol and the right value is another tuple. The second tuple's
+                left value is the corresponding Huffman code, and the right
+                value is the code's bit length. The function reads the alphabet
+                and checks the CodeMap for a match. If there is, then it is used
+                within the list as the second tuple. If not, then a tuple with
+                the values (-1, -1) is used. Finally, the list is converted into
+                a CodeMap. After all of this, the huffman function is done and
+                the CodeMaps, alphabets, and mapped data stream are returned.
+              </p>
+              <h4>Huffman Tree Compression</h4>
+              <p>
+                DEFLATE needs to store the information required for decoders to
+                be able to decode the picture, so the Huffman codes get stored
+                as well. To further save space, DEFLATE applies Huffman encoding
+                to the Huffman codes of the two different alphabets, encoding
+                the bit lengths of the codes of both alphabets into a single
+                tree. This process starts with createCLHuffman. It takes in the
+                length/literal and distance alphabets and first feeds them to
+                mapCLAlphabet. The lengths are mapped into the code length
+                alphabet, with lengths that appear in a row being mapped to a
+                single symbol with extra bits to specify how many there are in a
+                row. The mapCLAlphabet checks this by first feeding the alphabet
+                stream into clRow. It returns the amount of times that the
+                current symbol appears in a row, along with the rest of the data
+                stream after this row. Then mapCLAlphabet uses this info to
+                create a list of tuples of three Ints, the values representing
+                the extra bit length, extra bit value, and code length code.
+                After mapCLAlphabet is done, createCLHuffman feeds both the
+                mapped lists into createCLFrequencyHuffman, tracking the
+                frequency of the various codes with a FrequencyMap. The
+                FrequencyMap is then given to createHuffTree, generating a
+                Huffman tree as described before.
+              </p>
+              <p>
+                Finally, createCLHuffman calls createCLCodeMap, which takes in
+                the HuffTree and FrequencyMap to return a tuple representing the
+                code length list that will be packed, along with a CodeMap
+                that'll be used to encode the two original Huffman alphabets.
+                The two inputs are first given to createHCLENAlphabet to format
+                it for serialization. The HuffTree is first validated with
+                validateBitLength, making sure that the tree doesn't go past a
+                maximum height of 7. Next, clLengthMap is called to create a
+                CodeMap with the validated bit lengths. This CodeMap is then
+                used in the fillCLTemplate function, which also takes in a list
+                called orderedCLTemplate, to create a list of tuples. This list
+                holds the code lengths of the original Huffman codes within the
+                format that DEFLATE requires. The createHCLENAlphabet then
+                returns the validated Huffman bit lengths and the ordered code
+                lengths. The final step of createCLCodeMap is to use the
+                validated bit lengths to create a CodeMap. The process is the
+                same as for the earlier CodeMaps within the last section.
+              </p>
+              <h4>DEFLATE Packing</h4>
+              <p>
+                Here is where the DEFLATE algorithm starts. It consists of 6
+                functions that help pack the compressed data into bytes, along
+                with the deflate function that calls the various DEFLATE steps
+                and returns the data stream after it's packed. The first of the
+                packing functions, packCodeLengths and packCLCodes, takes in the
+                codes generated by createCLHuffman and prepares them for
+                packData, the main packing function. As packData takes in a list
+                of tuples of an Int and Word8 values, these two functions use
+                the codes' numeric values and bit lengths for the respective
+                tuple values. Additionally, packCLCodes multiplies the codes by
+                -1 as Huffman codes require differentiation from literals since
+                they're packed in a different order.
+              </p>
+              <p>
+                The next 3 functions are helpers for packing the codes and
+                literals into bytes. First of these is adjustCode. Whenever a
+                Huffman code is encountered, it is packed into the byte starting
+                from the most-significant bit. This is opposite of how literals
+                are packed. It would complicate the packing process by handling
+                both of these packing orderings, so instead adjustCode is used
+                to reverse the binary representation of the Huffman code. With
+                the least-significant bits now being the most-significant, the
+                packing function can insert them like literals. The next
+                function, calcAcc, places a bit into the current byte. It checks
+                if the bit within the code that the code's pointer represents is
+                set. If it is, then the bit pointed to by the byte's pointer
+                gets set. The final function for helping pack is packData. It's
+                an interface function that takes in the preprocessed data
+                stream, along with the Alder-32 checksum, and sends them, along
+                with some default values, to streamPack.
+              </p>
+              <p>
+                As the main packing function, streamPack is somewhat
+                complicated. It takes in 7 different inputs. A list of Word8
+                which is the Alder-32 checksum, a list of tuples which
+                represents values to be packed and their bit lengths, an
+                accumulator that represents the byte being packed, an Int that
+                represents the value of the next bit that could be set, an Int
+                that's the code being packed into the byte, a Word8 representing
+                the bit length of the code, and finally an Int that represents
+                the value of the next bit within code that will be checked.
+                Unlike the previously mentioned helpers which had 1-2 pattern
+                matches, streamPack has 6 pattern matches. The first three
+                patterns handle when the data stream is empty. If the current
+                code is read completely, then the accumulator is prepended to
+                the Alder-32 checksum and returned. If the accumulator is full,
+                it's prepended to whatever the next recursive call of streamPack
+                returns. The third pattern match is for when neither of the
+                previous two hold. In this one, the code has a bit packed into
+                the accumulator byte. The next three pattern matches are similar
+                with the last three, the only difference being the match when
+                the code has been completely read. It'll recursively call itself
+                with different parameters based on if the next code from the
+                data stream is a Huffman code. If it is, the code gets
+                multiplied by -1 to make it positive, gets sent to adjustCode to
+                invert the binary values, and is then passed to streamPack. If
+                it was not a Huffman code, it gets passed as is.
+              </p>
+              <p>
+                The final function within the DEFLATE packing section is deflate
+                itself. It takes in a filtered data stream, along with the
+                Alder-32 checksum, and guides them through the DEFLATE
+                algorithm. First the stream goes through LZ77 compression, then
+                through Huffman compression. After this, the length and distance
+                alphabets are used to compress the Huffman trees themselves.
+                After the compression steps are done, the various alphabets are
+                preprocessed for packing. Finally, the data stream, which had
+                the conversion of symbols to codes deferred until later, is
+                converted. After the stream is encoded and prepared for packing,
+                the entirety of the DEFLATE stream is given to packData to push
+                into bytes.
+              </p>
+              <h4>IDAT Helpers</h4>
+              <p>
+                Every function within this section is to help create the IDAT
+                chunks. The first function, compressInfo, passes the picture
+                data to the deflate function and stores the result in the zlib
+                format. The next two functions, extractInfo and chunkInfo, are
+                responsible for splitting the compressed data stream into
+                multiple IDAT chunks. The first function, extractInfo, takes in
+                the data stream and splits it into two lists. A tuple returned,
+                with the first list being used to create an IDAT chunk. If the
+                data stream was too large, the second list is the remaining
+                elements of the data stream. These are used by chunkInfo to
+                create IDAT chunks. The first list is the data within the IDAT
+                chunk, meanwhile the second list (if it has elements) is
+                recursively passed to chunkInfo to go create another IDAT chunk.
+              </p>
+              <h4>PNG Chunk Creation</h4>
+              <p>
+                This houses the various functions responsible for creating PNG
+                chunks. At the top are three variables. First is pngHeader,
+                which is a list of Word8 that is used to identify the file as a
+                PNG image. After that is chunkIHDR, which includes the length
+                and type bytes. Finally there is chunkIEND, which includes the
+                entirety of the IEND chunk. To help make the code easier to
+                read, I named the sections of the PNG file that never change.
+                After these variables are the functions responsible for creating
+                the header and body. The first function, createHeader, takes in
+                the width and height of the image and returns a list of Word8.
+                After that is createBody, which only takes in a list of lists of
+                Word8. This function pushes the input through various
+                compression steps, then it calls chunkInfo. If the final Word8
+                list is too long, then chunkInfo splits the data into different
+                IDAT chunks.
+              </p>
+              <h4>Writing to File</h4>
+              <p>
+                A small section that only contains writePNG. It takes in a list
+                of lists of Word8, two Int values, and a String. The function
+                then returns IO (), which allows the function to write to a
+                file. The file-writing section is handled by Data.ByteString's
+                writeFile function. My function first creates the write location
+                of the file, which will be in "output/PNG/$(fileName).png". Then
+                pack is used to convert a list of Word8, representing the PNG
+                file, into a ByteString. The file location and ByteString are
+                then passed to writeFile.
+              </p>
+              <h4>Test Variables</h4>
+              <p>
+                Within this section are various functions that generate a list
+                of lists of Word8. Each function here takes in an Int that
+                represents the size of the picture. The first one is
+                grayPicture, returns a picture with only gray pixels. The second
+                one, altPicture, alternates between 255 and 0 for each color
+                channel. The final one, altPicture', alternates between pixels
+                instead of color channels.
+              </p>
+              <h4>Manual Tests</h4>
+              <p>
+                Throughout development, I had to debug various functions.
+                Haskell code can be ran in an interactive enviroment with GHCi,
+                allowing me to directly call functions. This was helpful, but
+                some of the inputs could become nasty if I didn't create a bunch
+                of intermediate variables. To avoid this, I created a couple of
+                "manual tests". These all take in a list of lists of Word8,
+                allowing me to only have to declare raw picture data. The first
+                one, mFilter, returns a list of lists of Word8 that has had the
+                filter applied. Unlike the real output stream, this one doesn't
+                include the filter type. The next function, mLZ77, returns the
+                output of lz77 after the input has been filtered. The third
+                function, mHuffman, also takes in an Int and returns a String.
+                The return value is the String representation of intermediate
+                structures, with the Int acting as a selector. Finally, there is
+                mCLHuffman. It operates just like mHuffman, but for intermediate
+                clHuffman structures.
+              </p>
+              <h4>QuickCheck Generators</h4>
+              <p>
+                Generators are a way for developers to specify how test cases
+                should be generated when QuickCheck is testing properties. Here,
+                I define the type "Picture", which is a list of lists of Word8.
+                Next is a generator called picGen. Its type is Test.Gen
+                [[Word8]]. Test is a qualifier for QuickCheck, preventing a
+                naming conflict with another module I'm using. This function
+                uses Test.sized to create a generator that is used later in this
+                section. Test.sized is passed an anonymous function that
+                randomly sets the height and width of the picture, with
+                1920x1080 being the maximum size possible. Finally, the height
+                and width are used with Test.vectorOf to create a generator that
+                creates a [[Word8]], the only difference being that width is
+                multiplied by 3 to take the color channels of the picture into
+                account.
+              </p>
+              <p>
+                After the generator is an instance declaration of Test.Arbitrary
+                for Picture. When QuickCheck is testing properties, it creates
+                arbitrary values using the generator provided by the function
+                "arbitrary" that is in the Arbitrary instance of the input being
+                generated. For Picture, arbitrary returns the generator defined
+                by picGen. The Arbitrary class also defines a function called
+                shrink, which I've also declared in my instance. When a test
+                case is found that returns false on a property, shrink is used
+                to try reducing the potentially huge data structure into another
+                one that easier to read, yet still fails the property test. For
+                this shrink function, I return a list of Pictures that have
+                either rows removed, or columns removed. QuickCheck tests these
+                to see which ones fail, returning the smallest one that does if
+                any do.
+              </p>
+              <h4>QuickCheck Test Helpers</h4>
+              <p>
+                Here is where the various functions that are required to test
+                properties as located. At the top is a type declaration for
+                DecodeMap. It's the opposite of CodeMap, mapping Huffman codes
+                to symbols. Next are the various reconstruction functions for
+                scanline filtering. They reconstruct the scanline by adding the
+                current value of the bytes to the previous reconstructed values.
+                Unlike newFilterPicture, these functions don't pass
+                responsibilty for constructing the scanlines to other functions.
+                Instead, they each reconstruct a single scanline and return it.
+                The function filterReader is responsible for sending the filter
+                type, scanline, previous scanline, and size to reverseFilter and
+                prepending its reconstructed scanline to the list of lists that
+                filterReader (it's recursive) returns.
+              </p>
+              <p>
+                After the filter reversing section is the section for reversing
+                LZ77 compression. The first one is distanceReader, which is
+                called whenever a length value is encountered. It'll travers the
+                previously-decoded values and return a list of Ints based on the
+                encountered length and distance values. Next is lzReaderRunner,
+                which is the function that creates the decoded LZ77 stream,
+                which will end up being a list of Word8. It reads the encoded
+                stream and determines what to do based on the current byte. If
+                it is 256 or less, than it is a literal and doesn't need
+                decoding. If it's above 256, then the value corresponds to the
+                length of a match. The function will pass the length, distance,
+                and current buffer to distanceReader. Once it returns a list,
+                it'll add it to the decoded list and then continue scaning
+                bytes. The last function is lzReader, which acts as a nice
+                interface function to start the decoding process.
+              </p>
+              <p>
+                For Huffman decoding, the first two functions are lengthMapping'
+                and distanceMapping'. They're the inverse of the respective
+                Huffman compression functions. Next is decodeHuffman, which
+                takes in a Huffman code (represented as an Int) and a DecodeMap
+                to return the symbol that the code represents. After this is
+                invertMap, which takes in a CodeMap in the form of a list and
+                maps the keys and symbols, dropping the bitlength that CodeMap
+                includes and using the symbol as the key for DecodeMap. As I'm
+                only testing the first set of Huffman compression in
+                huffmanQuickCheck, I needed a way to decode Huffman codes
+                without access to the clHuffman data. This function is what lets
+                me do that, using the CodeMaps that huffman generates as a
+                bypass. The next two functions are huffmanReaderDistance and
+                huffmanReaderLiteral. They both read the codes and within the
+                data stream and converts them to the symbols of their respective
+                alphabets. After these two are huffmanUnmapperDistance and
+                huffmanUnmapperLiteral, both of which use the earlier mapping
+                functions to translate the symbols back to what LZ77 would have
+                generated. Finally, huffmanReader is the function responsible
+                for handling the decoding process. It first inverts the
+                length/literal and distance CodeMaps. Next, it encodes the
+                mapped data stream. As my huffman encoding function leaves the
+                conversion of symbols to codes for a later section of the
+                program, I had to encode the data within this decoding function.
+                After this, the encoded stream is then decoded with
+                huffmanReaderLiteral using the generated DecodeMaps. The
+                returned decoded stream is then passed huffmanUnmapperLiteral,
+                which is what generates the final stream. This represents
+                encoded picture data that has went through Huffman
+                decompression, but still needs LZ77 and scanline filtering
+                decompression.
+              </p>
+              <h4>QuickCheck Tests</h4>
+              <p>
+                Within the final section are all of the QuickCheck tests that
+                I've utilized throughout development. There's 3 tests, along
+                with an extra one for testing all 3 at once. Each function takes
+                in a list of lists of Word8, and returns a Bool. The three tests
+                are filterQuickCheck, lzQuickCheck, and huffmanQuickCheck. They
+                all test the same property, which is that the compression step
+                should be reversable without data loss.
+              </p>
+            </div>
+          </details>
+          <h3>Problems</h3>
+          <p>
+            When starting this project, I believed that writing fuctioning
+            Haskell code would be the hardest part. I originally couldn't see a
+            way to do this project with immutable variables and Haskell's heavy
+            usage of recursion. Despite this, I knew it could be possible. I
+            once read an interview that the co-founder of Mercury, a fintech
+            company, gave regarding their company's usage of Haskell and how
+            their entire backend was written in it. If an entire backend could
+            be written in Haskell, then an image encoder should be possible as
+            well. As I started writing functions for the PNG algorithm, I
+            realized that these obstacles weren't hard to overcome. Instead, the
+            hardest parts of this program was understanding the PNG algorithm
+            itself, along with optimizing Haskell's memory usage.
+          </p>
+          <p>
+            For PNG, the algorithms I struggled to understand the most were the
+            CRC checksum and doing Huffman encoding in the way DEFLATE
+            compression requires. To get over the hurdle of understanding and
+            implementing CRC, I looked at the sample C code provided for CRC by
+            the PNG specification and translated it into Haskell code. After a
+            few tests, I confirmed that my code translation was correct. As for
+            the Huffman encoding, I had to go over RFC 1951 multiple times to
+            understand it. It helped a ton, but there were still a few questions
+            left unanswered. The explanations to those questions felt ambiguous
+            to me, so I looked for answers online. Luckily I found the profile
+            of Mark Adler on StackOverflow. He was one of the authors of zlib
+            (which PNG takes the DEFLATE implementation from) and helped develop
+            the PNG standard. On his profile I found questions that other
+            developers had asked that he's answered. I also found an application
+            called infgen on his GitHub, which was a great help for further
+            understanding DEFLATE. With infgen, I could get an explanation of
+            what various bits and bytes represent in the encoded data stream. It
+            even explains why a PNG file is invalid, assuming the data stream
+            isn't too messed up.
+          </p>
+          <p>
+            With these, I was able to solve all but one problem. Whenever there
+            was a picture that generated Huffman trees that were too long, the
+            trees needed to be flattened to a certain height. The RFC didn't
+            explain how, instead directing readers to the references chapter. As
+            these cost quite a bit of money and the specific one containing the
+            answer wasn't specified, I instead went to zlib's source code and
+            attempted another translation. Within trees.c in the "gen_bitlen()"
+            function is the code for flattening trees. After reading the
+            comments and figuring out what the data structures were, I was able
+            to figure out what the flattening algorithm was and implement it in
+            Haskell.
+          </p>
+          <p>
+            After the PNG algorithm was implemented, I thought I was done. Up to
+            this point, all of the tests that I've done were with small pictures
+            (none bigger than 200x200). As I started testing with bigger files,
+            I noticed that the program slowed down considerably. I assumed this
+            was due to my implementation of LZ77, so I rewrote it with more
+            efficient data structures. Testing it again showed that it was still
+            slow. I couldn't see an obvious reason why, so I went to Cabal's
+            documentation and looked up how to do profiling. Once profiled, I
+            read the generated report and noticed two things. First was that the
+            amount of allocations was astronomical. After that I saw that the
+            runtime was listed as being 10 times faster than what I measured.
+            This led me to profiling again, this time enabling garbage
+            collection statistics and confirming what I thought. Most of the
+            time spent on the program went to garbage collecting (over 90%). The
+            original profiling report showed me the functions that allocated the
+            most, so I worked on optimizing them. I implemented data structures
+            that were way more memory-efficient, rewrote functions so that the
+            garbage collector could remove intermediate data faster, and other
+            optimizations. After I implemented what I deemed to be reasonable
+            fixes, peak memory usage was brought down from 12 GBs to under 3 GBs
+            for my 4K test picture. I wanted to bring it down even further, but
+            I couldn't see any other way to optimize memory usage without
+            rewriting most of my compression pipeline.
+          </p>
+          <p>
+            When I started designing the program, there were a number of
+            concepts that I wasn't aware of that contributed to the massive
+            amount of memory usage. The biggest offender, and the one that
+            necessitates a rewrite to fix, is my usage of lists to store
+            individual byte values. My functions operate on lists of values
+            (Word8, Int, ect), which is how normal Haskell code is written. I
+            had assumed that each element in the list would consist of the
+            element and a pointer to the next element. However, the list
+            elements consist of three pointers. They point to a table describing
+            what the list element is, point to the next element, and they point
+            to the actual data element itself. The data element itself consists
+            of a pointer to the table mentioned before, along with the space
+            required to store the element's value. Those extra pointer
+            allocations are there to enable Haskell's lazy evaluation. When
+            values are modified, the result is deferred until the computed value
+            is required (such as printing the result to the user). This allows
+            infinite lists, along with performance gains when only a few values
+            within a list are required. This, however, is not beneficial to my
+            program. With no infinite lists used and the entire stream of data
+            being required, lazy evaluation becomes a hindrance. I attempted to
+            mitigate this by adding strictness (reducing deferred calculations)
+            within my program, but I can't nullify the extra memory usage
+            without a major rewrite to how the picture's data is stored and
+            operated on.
+          </p>
+          <p>
+            The second biggest offender of excessive allocations were the
+            FrequencyMap data structures. These are dictionaries which map Int
+            values (symbols) to other Int values (their occurrence counts). As
+            Haskell variables are immutable, I had to go about using them in a
+            unique way. Whenever I added a new entry to the map, the insert
+            function would return a new map with the inserted value. As the map
+            is based on a sized balanced binary tree, I knew that some nodes
+            would be reallocated during inserts. With how fast modern computers
+            are, I had originally believed this to be a minor issue. Upon
+            testing with larger files, I realized that this inefficiency was
+            unacceptable. To mitigate this issue, I had to utilize a mutable,
+            unboxed vector. With that new data structure, along with using a
+            state monad, I could avoid those excessive allocations.
+          </p>
+          <h2>Afterthoughts</h2>
+          <p>
+            Overall, this was both the most fun and most challenging project
+            I've ever done. This taught me a lot about how files actually work
+            and store information. With how easy it is to convert a picture from
+            one file type to another, I never could imagine the underlying
+            process to be so complicated. Throughout the entire time I spent
+            working on this project, I was constantly challenged. Each new
+            problem I encountered required real effort to overcome. Each victory
+            led me to becoming a better programmer, whether that was due to me
+            improving at reading documentation, designing algorithms, debugging,
+            profiling and optimizing, or more. I'm especially impressed that I
+            was able to read a C implementation of both a CRC calculation, and
+            an algorithm for flattening Huffman trees, and properly translate
+            them to a functional language.
+          </p>
+          <p>
+            If I were to do this again, I would spend more time getting familiar
+            with the language I'm using before starting. As mentioned before,
+            there were some preconceptions that I had that led me to making
+            choices that hurt the efficiency of the application. Another thing I
+            would change would be how I tested. When I first finished the
+            sections that I worked on (such as LZ77), I would only test them
+            with small files. My reasoning was that with smaller files, I could
+            more easily discern if the result was correct and debug if it
+            wasn't. While I'll still do this, I'll also include bigger tests so
+            that I can better measure memory usage and performance.
+          </p>
+          <p>
+            In the future, I hope to come back to this project and implement new
+            features. The most important improvement I'd do is rewriting my
+            functions to use vectors instead of lists. By doing this, I could
+            finally get memory usage to normal levels and improve compression
+            speeds. After this, I'll include support for optional PNG features,
+            such as interlacing and ancillary chunks. Afterwards, I will
+            probably want to make a decoder. It would either be a PNG or JPEG
+            decoder, I haven't decided yet. One of my final goals for this
+            project would be to make a JPEG encoder. However, that'll be a long
+            ways away from now. Once that goal is reached, I'm not sure what I
+            would do next regarding this project. I'll leave that up to future
+            me to decide.
+          </p>
+        </div>
+      </div>
+      <div class="spacer reversed"></div>
+    </div>
+
+    <script src="index.js"></script>
+  </body>
+</html>

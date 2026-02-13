@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link id="style" rel="stylesheet" href="light.css" />
+    <link rel="preload" href="dark.css" as="style" />
+    <link rel="preload" href="img/moon.png" as="image" />
+    <link rel="preload" href="img/sun.png" as="image" />
+    <link rel="preload" href="img/stars.jpg" as="image" />
+    <link rel="preload" href="img/sky.jpg" as="image" />
+    <script>
+      var isNight = localStorage.getItem("cssState");
+
+      if (isNight === null) {
+        localStorage.setItem("cssState", "n");
+        isNight = "n";
+      }
+
+      if (isNight === "n") {
+        document.write(
+          "<style>.spacer { background-image: url(img/sky.jpg); }</style>"
+        );
+      } else {
+        document.write(
+          "<style>.spacer { background-image: url(img/stars.jpg); }</style>"
+        );
+      }
+    </script>
+    <title>Hello World!</title>
+  </head>
+  <body>
+    <div class="hFlex">
+      <div class="spacer"></div>
+      <div class="vFlex">
+        <div class="titleBar">
+          <a class="titleLink titleLinkFirst" href="index.html">Home</a>
+          <a class="titleLink" href="encoder.html">PNG Encoder</a>
+          <a class="titleLink" href="maze.html">Maze Pathfinder</a>
+          <a class="titleLink titleLinkLast" href="lms.html">Python LMS</a>
+          <div class="button">
+            <img src="img/moon.png" width="40" height="40" />
+          </div>
+        </div>
+        <div class="content">
+          <h1>Jamel Chouarfia's Portfolio</h1>
+          <div class="frontPage">
+            <div class="frontPageContainer">
+              <h2>Skills</h2>
+              <ul>
+                <li><b>Proficient Languages:</b> C++, Haskell, and Java</li>
+                <li>
+                  <b>Familiar Languages:</b> C, TypeScript, JavaScript, SQL, and
+                  Python
+                </li>
+                <li><b>Operating Systems:</b> Windows and Linux (Ubuntu)</li>
+                <li>
+                  <b>Practices:</b> Unit Testing, Agile (Scrum), and Profiling
+                </li>
+                <li>
+                  <b>Tools:</b> Git, GitHub, Visual Studio (and Code), and
+                  IntelliJ
+                </li>
+                <li>
+                  <b>Classes Taken:</b>
+                  <ul>
+                    <li>Data Structures and Algorithms</li>
+                    <li>Database System Design</li>
+                    <li>Functional Programming</li>
+                    <li>Computer Forensics</li>
+                    <li>Operating Systems</li>
+                    <li>Cybersecurity</li>
+                    <li>Networking</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+
+            <div class="frontPageContainer">
+              <h2>Projects Overview</h2>
+              <h3>PNG Encoder</h3>
+              <p>
+                Developed in Haskell, this PNG encoder takes in raw RGB data and
+                produces valid PNG files. These files are fully compressed,
+                going through each compression algorithm definined within the
+                PNG specification (scanline filtering, LZ77, and Huffman
+                encoding)
+              </p>
+              <h3>Maze Pathfinder</h3>
+              <p>
+                The maze pathfinding project was developed in C++ and utilizes
+                the A* algorithm for traversal. The GUI was created using the
+                wxWidgets library.
+              </p>
+              <h3>Python LMS</h3>
+              <p>
+                This Java-written program was done as a final team project for a
+                university class. My group, consisting of 4 others led by me,
+                was tasked with creating a learning management system (LMS) for
+                Python.
+              </p>
+            </div>
+            <div class="frontPageContainer">
+              <h2>Who am I?</h2>
+              <p>
+                Hello! I am Jamel, a 23 year old software engineer from North
+                Carolina. I've been programming for around 5 years :3
+              </p>
+              <p>
+                I graduated from University of South Carolina in 2025 with a
+                Bachelor's in Computer Science.
+              </p>
+              <p>
+                C++ is my main language. I first started learning it near the
+                end of high school. It's mainly self-taught as I've only ever
+                had one university class use the language.
+              </p>
+              <p>
+                Haskell, my second-best language. I started learning it after a
+                required university course introduced it. The language
+                interested me, so I enrolled in an elective class dedicated to
+                Haskell.
+              </p>
+              <p>
+                Java is my third-best language. This was my main programming
+                language throughout university as most classes required writing
+                Java code. I still use it occassionally when testing programming
+                concepts as I love how modern the IDE I use (IntelliJ) feels.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spacer reversed"></div>
+    </div>
+    <script src="index.js"></script>
+  </body>
+</html>

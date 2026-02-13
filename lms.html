@@ -1,0 +1,355 @@
+<!doctype html>
+<html>
+  <head>
+    <link id="style" rel="stylesheet" href="light.css" />
+    <link rel="preload" href="img/moon.png" as="image" />
+    <link rel="preload" href="img/sun.png" as="image" />
+    <link rel="preload" href="img/stars.jpg" as="image" />
+    <link rel="preload" href="img/sky.jpg" as="image" />
+    <script>
+      var isNight = localStorage.getItem("cssState");
+
+      if (isNight === null) {
+        localStorage.setItem("cssState", "n");
+        isNight = "n";
+      }
+
+      if (isNight === "n") {
+        document.write(
+          "<style>.spacer { background-image: url(img/sky.jpg); }</style>",
+        );
+      } else {
+        document.write(
+          "<style>.spacer { background-image: url(img/stars.jpg); }</style>",
+        );
+      }
+    </script>
+    <title>Hello World!</title>
+  </head>
+  <body>
+    <div class="hFlex">
+      <div class="spacer"></div>
+      <div class="vFlex">
+        <div class="titleBar">
+          <a class="titleLink titleLinkFirst" href="index.html">Home</a>
+          <a class="titleLink" href="encoder.html">PNG Encoder</a>
+          <a class="titleLink" href="maze.html">Maze Pathfinder</a>
+          <a class="titleLink titleLinkLast" href="lms.html">Python LMS</a>
+          <div class="button">
+            <img src="img/moon.png" width="40" height="40" />
+          </div>
+        </div>
+        <div class="content">
+          <h1>Python Learning Management System</h1>
+          <div class="gitLinkContainer">
+            <a
+              class="gitLink"
+              href="https://github.com/raej15/247-AnonymousPandas"
+              >Repository</a
+            >
+          </div>
+          <h2>Purpose</h2>
+          <p>
+            When I was taking CSCE 247: Software Engineering, our teacher
+            required us to form a group of 3-5 students and spend a month
+            working on a learning management system (LMS). I grouped up a few
+            people that I knew and lead the project for this class. We had the
+            freedom to choose any subject to teach, so we chose Python. It was a
+            nice way for us to learn the basics, especially since a few of us
+            already wanted to learn Python. The main goal behind this project
+            was implementing software design patterns that we studied during
+            class. Before any lines of code were written, we had to create a UML
+            diagram and decide which patterns should be used, and where. I was
+            responsible for implementing the user interface with a facade
+            pattern.
+          </p>
+          <h2>Creation</h2>
+          <h3>Approach</h3>
+          <p>
+            After we all got into teams, our teacher started listing out the
+            requirements of the project. Instead of having a paper or such
+            specifying what was needed, our teacher simulated how an actual
+            project would get started. Each of our teams had a "manager"
+            (usually the leader) and they had to ask questions regarding what
+            our "customer" (the teacher) wanted for their final product. As it
+            was around 3 years ago, I don't remember what I asked exactly. Our
+            team came up with the idea of just asking questions that involved
+            the core of our project, such as how the learning modules should be
+            structured. When each group was done asking questions, we were then
+            tasked with creating an UML diagram. We had to turn in two versions,
+            a rough-draft and final-draft. Once the final-draft was turned in,
+            we could start work on coding.
+          </p>
+          <p>
+            Every week, we had an online team meeting with the teaching
+            assistant (TA). We had to simulate working under the Scrum process,
+            with our TA acting as both our manager and guide. We started off by
+            going over what we did for the week and what still needed to be
+            completed. If we came up with new tasks to complete, we would assign
+            it to either a teammate or the backlog based on its priority. Then,
+            we would go over our backlog and decide who would do what for the
+            next sprint. At the end of the meeting, we had time to ask the TA
+            questions regarding the project and our individual tasks.
+          </p>
+          <p>
+            After the project started, class time shifted from studying and
+            became a period where we would code. Our group of 5 would sit
+            together and work on our individual assignments. Whenever someone
+            came across a problem and struggled to figure it out, they would ask
+            the group for help. Most of the problems ended up being about Git,
+            which I could usually answer with my previous experience. Problems
+            involving the actual code were somewhat rare since we all had over a
+            year of working with Java at that point. Despite working on
+            individual tasks, the sessions were pretty collaborative. Each of us
+            had a good idea of how the other sections would work, but there
+            would be edge cases that depended on the other person's
+            implementation. We made steady progress throughout the month that we
+            worked.
+          </p>
+          <details>
+            <summary>Implementation</summary>
+            <div class="detailsContent">
+              <h3>Classes</h3>
+              <p>
+                Out of the three projects included in this portfolio, this one
+                by far has the most amount of classes. With a total of 24
+                classes, this project has more than 3 times as many classes as
+                the other two projects combined. Due to this, I'll only go into
+                detail regarding the classes that I authored. The other classes
+                where I only helped at most will get a brief summary of what
+                they do. The three classes that I were responsible for are UI,
+                LMSFacade, and LMSFacadeTest. Despite making up 12.5% of the
+                classes, these files consist of around 44% of the total amount
+                of lines of code in the project. As leader, I assigned the
+                interface classes to myself since these were the most important
+                classes to implement for our grade. The other 21 classes are
+                responsible for reading and writing files, structuring learning
+                modules, testing, and more.
+              </p>
+              <h3>UI</h3>
+              <p>
+                UI is the class which holds the main function. It first creates
+                an input scanner for user input, then it calls upon the
+                loadData() function. Within loadData(), both UserList and
+                CourseList, custom classes to hold accounts and courses, have
+                data loaded in via the DataLoader. DataLoader is a custom class
+                created by one of my teammates that parses JSON files with help
+                from the library json-simple. Once the data has all been loaded,
+                an instance of LMSFacade is created. LMSFacade acts as a
+                middleman between the UI and the various components of the
+                program. Whenever the UI requires something, such as the
+                contents of a lesson, it can easily request it from the Facade.
+                Once it's initialized, the terminal is cleared to have an empty
+                terminal. The main loop then begins and runs as long as loadUI()
+                returns true. loadUI() determines what gets printed to the
+                console and returns true if the user hasn't asked to quit. Every
+                loop, the terminal is cleared and and notifications are printed
+                to the terminal.
+              </p>
+              <p>
+                Within loadUI(), the function first checks if a user has been
+                logged in. If not, the user is asked to either log in or
+                register. The user is asked to selection options with numbers,
+                their input being parsed with a function called intCheck(). The
+                function checks if the user's input is a number. If it isn't,
+                the function loops until a proper integer is given. The integer
+                is then put through a switch statement to decide what to do
+                next. If they chose to log in, the login() function is called,
+                asking for a username and password. If register was chosen, they
+                go through the registration process using register(). If they
+                chose to exit, then the function returns false and the main loop
+                breaks. After it breaks, The console says goodbye to the user
+                and saveData() is called. This function calls upon saveUsers()
+                and saveCourseList() within DataWriter. JSON files are created
+                to save local progress.
+              </p>
+              <p>
+                When the user is logged in, they have two different UIs. One for
+                student accounts, and another for course creator accounts. The
+                function loadUI() calls up studentUI() or courseCreatorUI()
+                based on the account type of the user. Student accounts have the
+                ability to enroll in courses, leave comments, and gain
+                certifications. Meanwhile, course creators can create courses
+                and edit their own, with other courses not visible. Both UI
+                functions operate similarly. They'll check various functions
+                within the facade and load the UI element required. For example,
+                if in LMSFacade the value for module was null, then it would ask
+                to select, create, or delete modules.
+              </p>
+              <h3>LMSFacade and LMSFacadeTest</h3>
+              <p>
+                The facade class is responsible for acting as a middleman
+                inbetween the UI and the various objects of the backend. This
+                design pattern was implemented so that complexity could be
+                offloaded from the UI class. Without the facade, the UI would
+                have to handle both handling state and creating the UI. Within
+                the facade, state is handled by using variables which store
+                various objects. The UI knows which interface function to call
+                since the variables are like a stack. If one object is null,
+                then the previous object is what needs its UI function to be
+                called.
+              </p>
+              <p>
+                For the LMSFacadeText class, the testing is done using JUnit.
+                This testing framework was chosen by our teacher. Within the
+                class are various tests to check if each function written within
+                LMSFacade operates as it should. There are inputs that should
+                never happen when the program is ran, yet those are tested for
+                as well. Our teacher wanted us to handle any and all cases that
+                could happen due to unforseen bugs.
+              </p>
+              <h3>Other Classes</h3>
+              <h4>Comment</h4>
+              <p>
+                Comment allows users to add comments to courses, modules,
+                lessons, quizzes, and even other comments.
+              </p>
+              <h4>Course</h4>
+              <p>
+                When users use the program, courses are what they enroll in.
+                They have a name, a description, an assigned language
+                (JavaScript was added near the of the project), an awardable
+                certification, and the author's UUID. The course also includes a
+                hash map of grades, along with two array lists of comments and
+                students enrolled. The author of the course is allowed to update
+                various attributes.
+              </p>
+              <h4>CourseCreator</h4>
+              <p>
+                CourseCreator is the account class used by teachers using the
+                program. It inherits from the base User class and grants the
+                special privileges of creating and editing courses.
+              </p>
+              <h4>CourseList and TestCourseList</h4>
+              <p>
+                This class contains a static array list of courses, which are
+                loaded in from an enternal file. The class itself is implemented
+                as a singleton. TestCourseList tests the various functions
+                within CourseList.
+              </p>
+              <h4>DataConstants</h4>
+              <p>
+                A class that contains constants that are used with the program's
+                JSON files.
+              </p>
+              <h4>DataLoader and DataLoaderTest</h4>
+              <p>
+                Dataloader reads a JSON file and uses it to populate CourseList.
+                It utilizes a library called json-simple. DataLoaderTest,
+                meanwhile, contains tests to check if the class and library are
+                working.
+              </p>
+              <h4>DataWriter and DataWriterTest</h4>
+              <p>
+                DataWriter is just like DataLoader, but it writes the
+                information within CourseList to a JSON file. It also uses the
+                same library. DataWriterTest, likewise, also contains tests.
+              </p>
+              <h4>FinalCertification</h4>
+              <p>
+                FinalCertification holds a Quiz that needs to be passed to
+                complete a course.
+              </p>
+              <h4>Language</h4>
+              <p>An enum class that only contains JavaScript and Python.</p>
+              <h4>Lesson</h4>
+              <p>
+                Contains two strings, the lesson name and content. This is what
+                users study.
+              </p>
+              <h4>Module</h4>
+              <p>
+                Modules contain their name, a description, a Quiz, an Lesson
+                array list, and a Comment array list.
+              </p>
+              <h4>Question</h4>
+              <p>
+                Question have a string representing a question, an index
+                representing the correct answer, and an array list of potential
+                answers.
+              </p>
+              <h4>Quiz</h4>
+              <p>A quiz contains a Question array list.</p>
+              <h4>Student</h4>
+              <p>
+                Student is the account type for students. It inherits from User
+                and adds an array list of strings which represents
+                certifications earned.
+              </p>
+              <h4>testing</h4>
+              <p>
+                This class was written before we got JUnit working. It's a
+                simple test that checks if DataLoader works.
+              </p>
+              <h4>User</h4>
+              <p>
+                The base class for all accounts. It contains a username,
+                password, email, first/last name, a UUID, and a type which
+                represents the type of account.
+              </p>
+              <h4>UserList and UserListTest</h4>
+              <p>Like CourseList, but for accounts. Same for UserListTest.</p>
+            </div>
+          </details>
+          <h3>Problems</h3>
+          <p>
+            Even with the guidance of our teacher and TA, we still struggled on
+            some parts. Our first issue was with the UML diagram. We made one to
+            the best of our abilities, but even the final-draft ended up not
+            being nearly as comprehensive as we needed it to be. There were
+            moments where we had to edit the diagram during work since we
+            wouldn't be able to complete tasks with the listed classes and
+            methods. Another issue that we struggled with was with automated
+            testing. Before this class, none of us had ever implemented
+            automated testing before. We were required to create a bunch of
+            tests for nearly every single function created. Both implementing
+            JUnit (our testing framework) and passing the tests took a good
+            chunk of our time.
+          </p>
+          <p>
+            The biggest problem we had was with Git. Our team was already
+            struggling a lot since it was their first time using it. They had to
+            set up Git and have me teach them the basic commands, taking away
+            time from programming. One of our teammate's computers wouldn't set
+            it up properly. Our teacher tried helping, but even they couldn't
+            get it to work. However, our worst Git issue by far was with merges.
+            Even with my experience, I struggled with them since I only did solo
+            Git development before that project. There were many merge conflicts
+            since we were all working in the main branch. At the time, I don't
+            think a single group in that class knew about working in different
+            branches. I'm guessing our teacher didn't bring it up so that we
+            would be forced to get good at dealing with merge conflicts.
+          </p>
+          <h2>Afterthoughts</h2>
+          <p>
+            Overall, we believe that the project went well. We learned a lot
+            about the methodologies that businesses employ, how teams
+            collaborate using Git, and generally how professional software
+            development is done. My part specifically helped me further
+            understand how to develop proper interfaces for both classes and
+            users.
+          </p>
+          <p>
+            Since it has been around 3 years since my team did this project, I
+            can see a bunch of areas which I would improve upon. First off, I
+            would change how states are handled. In the LMSFacade class, states
+            are kept track of by checking which variables are null. Instead, I
+            would create a new variable that would keep track of which UI
+            function should be used. This way, the program could use a switch
+            statement instead of a bunch of if checks. Another thing I would do
+            differently is utilize workflow tools better. While the way we used
+            Git was most likely done to teach us how to handle merge conflicts,
+            it was extremely inefficient. If I were to lead a team again, each
+            of us would work on our own seperate branches. Once our individual
+            tasks were completed, the branches would be pulled into main and the
+            conflicts handled then. This would reduce the amount of time wasted
+            by dealing with merging.
+          </p>
+        </div>
+      </div>
+      <div class="spacer reversed"></div>
+    </div>
+
+    <script src="index.js"></script>
+  </body>
+</html>

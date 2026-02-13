@@ -1,0 +1,207 @@
+html {
+  min-height: 100vh;
+  height: auto;
+  margin: 0;
+  color: azure;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  height: auto;
+  margin: 0;
+}
+
+p {
+  font-size: 1.175em;
+}
+
+li {
+  font-size: 1.175em;
+}
+
+h1 {
+  font-size: 3em;
+  width: auto;
+  text-align: center;
+  margin: 60px 0px 0px 0px;
+}
+
+h2 {
+  text-align: center;
+  font-size: 2.5em;
+}
+
+h3 {
+  font-size: 2em;
+}
+
+h4 {
+  font-size: 1.5em;
+}
+
+summary {
+  font-size: 2em;
+  font-weight: bold;
+  width: fit-content;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+
+button {
+  align-self: flex-end;
+  background-image: url("img/sun.png");
+  height: 50px;
+  width: 50px;
+  margin: auto auto auto 0px;
+}
+
+.detailsContent {
+  background-color: #101010;
+  border: 2px solid silver;
+  padding: 0px 2% 0px 2%;
+}
+
+.button {
+  align-self: flex-end;
+  background-image: url("img/moon.png");
+  height: 40px;
+  width: 40px;
+  margin: auto auto auto 0px;
+  padding: 5px;
+}
+
+.spacer {
+  flex-grow: 1;
+  height: auto;
+  max-width: 10%;
+}
+
+.reversed {
+  transform: scaleX(-1);
+}
+
+/*TODO Change the padding of the button when the viewport is thin enough*/
+.titleBar {
+  background-color: #202020;
+  background-color: #161616;
+  background-color: #202020;
+  display: flex;
+  flex-direction: row-reverse;
+  min-height: 75px;
+  max-height: 75px;
+  width: auto;
+  padding: 0px 0px 0px 15px;
+  border-style: solid;
+  border-color: silver;
+  border-width: 0px 2px 2px 2px;
+}
+
+.titleLink {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0px 0px 0px 0px;
+  height: 100%;
+  width: 100px;
+  background-color: #101010;
+  background-color: #080808;
+  background-color: #101010;
+  font-size: 1.1rem;
+  text-align: center;
+  text-decoration: none;
+  color: azure;
+  border-style: solid;
+  border-color: silver;
+  border-width: 0px 0px 0px 2px;
+  padding: 0px 5px 0px 5px;
+}
+
+.titleLink:hover {
+  background-color: black;
+}
+
+.titleLinkFirst {
+  width: 60px;
+}
+
+.titleLinkLast {
+  width: 60px;
+}
+
+.content {
+  background-color: whitesmoke;
+  background-color: black;
+  flex-grow: 1;
+  height: auto;
+  padding: 0px 50px 0px 50px;
+  padding: 0px 5% 0px 5%;
+  border-style: solid;
+  border-color: silver;
+  border-width: 0px 2px 0px 2px;
+}
+
+.vFlex {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 8;
+  min-height: 100vh;
+  height: auto;
+  max-width: 80%;
+}
+
+.hFlex {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  height: auto;
+}
+
+.frontPage {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1%;
+}
+
+.frontPageContainer {
+  border: 2px solid silver;
+  background-color: #101010;
+  padding: 0px 2% 1% 2%;
+  height: fit-content;
+  width: 26%;
+}
+
+.frontPageContainer h2 {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.frontPageContainer h3 {
+  text-align: left;
+  margin-bottom: 0px;
+}
+
+.frontPageContainer ul li {
+  margin-bottom: 5px;
+}
+
+.frontPageContainer ul li ul:first-of-type li {
+  margin-top: 5px;
+}
+
+.gitLinkContainer {
+  display: flex;
+  justify-content: center;
+}
+
+.gitLink {
+  display: inline-block;
+  font-size: 2em;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Reminder: this makes it so that the list elements inside one of the list elements stays the same size*/
+li ul li {
+  font-size: 1.175rem;
+}

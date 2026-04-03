@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <link id="style" rel="stylesheet" href="light.css" />
@@ -17,11 +17,11 @@
 
       if (isNight === "n") {
         document.write(
-          "<style>.spacer { background-image: url(img/sky.jpg); }</style>"
+          "<style>.spacer { background-image: url(img/sky.jpg); }</style>",
         );
       } else {
         document.write(
-          "<style>.spacer { background-image: url(img/stars.jpg); }</style>"
+          "<style>.spacer { background-image: url(img/stars.jpg); }</style>",
         );
       }
     </script>
@@ -80,9 +80,8 @@
               <p>
                 Developed in Haskell, this PNG encoder takes in raw RGB data and
                 produces valid PNG files. These files are fully compressed,
-                going through each compression algorithm definined within the
-                PNG specification (scanline filtering, LZ77, and Huffman
-                encoding)
+                going through each compression algorithm defined within the PNG
+                specification (scanline filtering, LZ77, and Huffman encoding)
               </p>
               <h3>Maze Pathfinder</h3>
               <p>
